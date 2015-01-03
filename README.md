@@ -3,6 +3,8 @@ LifeHistGame
 
 Life history simulation for Biologists Night
 
+![Screenshot](screenshot.png)
+
 This model simulates competition for spece between for simple, sedentary, plant-like organisms, using different life strategies, in sense of different maturation age and single or multiple reproduction.
 
 Life history theory is a part of the evolutionary biology that aims to explain how the duration and schedule of key events in life of organisms (such as development, sexual maturation and senescence) are shaped by natural selection to maximize the reproduction output of individual. This theory also points out the tradeoffs that each organism have to made in context of resource allocation into growth, reproduction and regeneration, quantity or quality of offspring, predator avoidance versus maximization of food intake etc. 
