@@ -1,7 +1,7 @@
 LifeHistGame
 ============
 
-Life history simulation for Biologists Night
+Life history simulation for polish [Biologists Night](http://www.nocbiologow.home.pl/index.php)
 
 ![Screenshot](screenshot.png)
 
