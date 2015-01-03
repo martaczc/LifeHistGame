@@ -3,7 +3,7 @@ LifeHistGame
 
 Life history simulation for Polish [Biologists Night](http://www.nocbiologow.home.pl/index.php)
 
-To see it working, download LifeHistGame.nlogo file and open it using [NetLogo](https://ccl.northwestern.edu/netlogo/) (available for free).
+To see it working, download [LifeHistGame.nlogo](https://github.com/martaczc/LifeHistGame/archive/master.zip) file and open it using [NetLogo](https://ccl.northwestern.edu/netlogo/) (available for free).
 
 ![Screenshot](screenshot.png)
 
