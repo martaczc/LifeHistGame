@@ -231,10 +231,10 @@ to-report count_energy [time] ;; in turtle context: count energy amount after [t
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-368
-11
-1128
-542
+370
+20
+1130
+551
 -1
 -1
 25.0
@@ -258,10 +258,10 @@ ticks
 30.0
 
 BUTTON
-7
-18
-80
-51
+37
+21
+110
+54
 setup
 setup
 NIL
@@ -275,10 +275,10 @@ NIL
 1
 
 INPUTBOX
-6
-71
-167
-131
+30
+80
+110
+140
 initial_plants
 10
 1
@@ -286,10 +286,10 @@ initial_plants
 Number
 
 SLIDER
-5
-201
-177
-234
+7
+223
+161
+256
 maturation_age1
 maturation_age1
 1
@@ -301,27 +301,12 @@ NIL
 HORIZONTAL
 
 SLIDER
-2
-310
-182
-343
-maturation_age2
-maturation_age2
-1
-5
-2
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-185
-201
+10
+332
+168
 365
-234
-maturation_age3
-maturation_age3
+maturation_age2
+maturation_age2
 1
 5
 3
@@ -331,10 +316,25 @@ NIL
 HORIZONTAL
 
 SLIDER
-185
-310
+182
+223
+339
+256
+maturation_age3
+maturation_age3
+1
+5
+2
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+187
+332
+349
 365
-343
 maturation_age4
 maturation_age4
 1
@@ -346,10 +346,10 @@ NIL
 HORIZONTAL
 
 SWITCH
-17
-238
-166
-271
+9
+261
+158
+294
 semelparity1
 semelparity1
 1
@@ -357,10 +357,10 @@ semelparity1
 -1000
 
 SWITCH
-13
-348
-162
-381
+15
+370
+164
+403
 semelparity2
 semelparity2
 1
@@ -368,10 +368,10 @@ semelparity2
 -1000
 
 SWITCH
-198
-238
-347
-271
+186
+262
+335
+295
 semelparity3
 semelparity3
 1
@@ -379,10 +379,10 @@ semelparity3
 -1000
 
 SWITCH
-197
-349
-346
-382
+194
+371
+343
+404
 semelparity4
 semelparity4
 1
@@ -390,10 +390,10 @@ semelparity4
 -1000
 
 SLIDER
-178
-98
-358
-131
+129
+109
+309
+142
 annual_mortality
 annual_mortality
 0
@@ -405,10 +405,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-178
-17
-241
-50
+128
+22
+191
+55
 go
 go
 NIL
@@ -464,10 +464,10 @@ PENS
 "4" 1.0 0 -955883 true "" "plotxy ticks (item 3 seeds)"
 
 SLIDER
-178
-57
-356
-90
+129
+68
+307
+101
 simulation_time
 simulation_time
 0
@@ -479,10 +479,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-276
-18
-340
-51
+214
+23
+278
+56
 NIL
 go-n
 NIL
@@ -496,10 +496,10 @@ NIL
 1
 
 SWITCH
-200
 135
-357
-168
+151
+292
+184
 asynchronize?
 asynchronize?
 0
@@ -507,55 +507,66 @@ asynchronize?
 -1000
 
 TEXTBOX
-53
-180
-203
-198
+55
+202
+205
+220
 magenta
 14
 125.0
 1
 
 TEXTBOX
-64
-293
-214
-311
+66
+315
+216
+333
 blue
 14
 105.0
 1
 
 TEXTBOX
-245
-180
-395
-198
+247
+202
+397
+220
 green
 14
 55.0
 1
 
 TEXTBOX
-239
-292
-389
-310
+236
+314
+386
+332
 orange
 14
 25.0
 1
 
+TEXTBOX
+67
+466
+348
+507
+CC Marta Czarnocka-Cieciura, 2015
+12
+0.0
+1
+
 @#$#@#$#@
 ## WHAT IS IT?
-This model simulates concurence between plant species using different life strategies, in sense of different maturation age and semelparous or iteroparous reproduction.
+This model simulates competition for spece between for simple, sedentary, plant-like organisms, using different life strategies, in sense of different maturation age and single or multiple reproduction.
 
-Life history theory is a part of the evolutionary biology that tryes to explain how the duration and shedule of key events in life of organisms (such as development, sexual maturation and senescence) are sheped by natural selection to maximize the reproduction output of individual., such as , as well as the allocation decissions such as parental investment, offspring size and number, as well as regeneration abilities. 
+Life history theory is a part of the evolutionary biology that aims to explain how the duration and schedule of key events in life of organisms (such as development, sexual maturation and senescence) are shaped by natural selection to maximize the reproduction output of individual. This theory also points out the tradeoffs that each organism have to made in context of resource allocation into growth, reproduction and regeneration, quantity or quality of offspring, predator avoidance versus maximization of food intake etc. 
 
-This model focus on the 
+The user can set  maturation age and reproduction investment of each plant type. Later maturation let the organism grow longer and hence make it able to invest more in seed production in the future. In the contrary, earlier maturation makes the plant more likely to survive to the reproduction age and because of shorter generation time, population of such plants are able to grow more rapidly, producing grandchildren and grand-grandchildren before their competitors even start reproduction.
 
+The reproduction investment settings allows user to choose between semelparous or iteroparous strategy of each plant type. Semelparity is observed in many real-world plants (eg. wheat, carrot, agava, bamboo) and some animals (eg. mayfly, some species of squids and salmons), and means that organism reproduce only onece in its life, uses all resources in offspring production and die shortly afterwards. The second strategy, iteroparity, means that only part of the resources is used for offspring production and the remaining part is spend for survival untill next breeding season.
 
-(a general understanding of what the model is trying to show or explain)
+This model allows user to test performance of each arbitrally choosed strategy and its competitive abilities. The limiting factor is the free space and the winner in contest for each available spot (left after death of the resident plant) depends only on whole amount of seeds of each type in the population. Hence the competition is mediated by the limited resources, not interactions between individuals (finite version of "nest site lottery" [1])
 
 ## HOW IT WORKS
 
@@ -586,7 +597,7 @@ This model focus on the
 (models in the NetLogo Models Library and elsewhere which are of related interest)
 
 ## CREDITS AND REFERENCES
-
+[1] Argasinski, K., & Broom, M. (2013). The nest site lottery: How selectively neutral density dependent growth suppression induces frequency dependent selection. Theoretical population biology, 90, 82-90. ([doi:10.1016/j.tpb.2013.09.011](http://dx.doi.org/10.1016/j.tpb.2013.09.011), see on ArXiv: http://arxiv.org/abs/1303.0564)
 (a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
 @#$#@#$#@
 default
