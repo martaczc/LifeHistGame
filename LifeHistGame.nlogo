@@ -231,10 +231,10 @@ to-report count_energy [time] ;; in turtle context: count energy amount after [t
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-370
-20
-1130
-551
+354
+15
+1114
+546
 -1
 -1
 25.0
@@ -309,7 +309,7 @@ maturation_age2
 maturation_age2
 1
 5
-3
+2
 1
 1
 NIL
@@ -324,7 +324,7 @@ maturation_age3
 maturation_age3
 1
 5
-2
+3
 1
 1
 NIL
@@ -398,7 +398,7 @@ annual_mortality
 annual_mortality
 0
 1
-0.35
+0.45
 0.05
 1
 NIL
@@ -422,13 +422,13 @@ NIL
 1
 
 PLOT
-1132
-12
-1332
-162
+1127
+15
+1327
+281
 plants structure
 time
-plants
+number of plants
 0.0
 10.0
 0.0
@@ -443,10 +443,10 @@ PENS
 "4" 1.0 0 -955883 true "" "plotxy ticks count plantsType4"
 
 PLOT
-1132
-182
-1332
-332
+1126
+302
+1326
+547
 seeds structure
 time
 number of seeds
@@ -472,7 +472,7 @@ simulation_time
 simulation_time
 0
 1000
-200
+40
 10
 1
 NIL
