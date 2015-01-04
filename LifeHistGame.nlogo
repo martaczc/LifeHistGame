@@ -7,7 +7,7 @@
 ; OK klarowniejszy interfejs
 ; OK go n-steps
 
-globals [seeds choosen_seeds empty_patches start_energy index energy_amount break seed_index sum_seeds]
+globals [seeds choosen_seeds empty_patches start_energy index energy_amount break seed_index sum_seeds all_seeds all_plants]
 
 breed [plantsType1 plant1]
 breed [plantsType2 plant2]
@@ -28,6 +28,8 @@ to setup
   set start_energy 5
   update-empty-patches
   set seeds (n-values 4 [initial_plants])
+  set all_seeds (n-values 4 [0])
+  set all_plants (n-values 4 [0])
   set-default-shape turtles "seed"
   plant-all-seeds
   if asynchronize? [asynchronize]  
@@ -64,10 +66,6 @@ to go-n
   ] 
 end
 
-to stop!
-  show "stop!"
-end
-
 to draw-edges [color_name] 
   ask patches [
     sprout-walls 1 [
@@ -96,6 +94,7 @@ to plant-seeds [number breed_type] ;; TODO: choose seeds to plant if seeds > emp
       set age 0
       set stage 0
       if breed_type = plantsType1 [
+        set all_plants (replace-item 0 all_plants ((item 0 all_plants) + 1))
         set color magenta
         set pcolor 129
         set maturation_age maturation_age1
@@ -105,6 +104,7 @@ to plant-seeds [number breed_type] ;; TODO: choose seeds to plant if seeds > emp
         [set reproduce task reproduce_multiple]
       ]
       if breed_type = plantsType2 [
+        set all_plants (replace-item 1 all_plants ((item 1 all_plants) + 1))
         set color blue
         set pcolor 99
         set maturation_age maturation_age2
@@ -114,6 +114,7 @@ to plant-seeds [number breed_type] ;; TODO: choose seeds to plant if seeds > emp
         [set reproduce task reproduce_multiple]
       ]
       if breed_type = plantsType3 [
+        set all_plants (replace-item 2 all_plants ((item 2 all_plants) + 1))
         set color green
         set pcolor 69
         set maturation_age maturation_age3
@@ -123,6 +124,7 @@ to plant-seeds [number breed_type] ;; TODO: choose seeds to plant if seeds > emp
         [set reproduce task reproduce_multiple]
       ]  
       if breed_type = plantsType4 [
+        set all_plants (replace-item 3 all_plants ((item 3 all_plants) + 1))
         set color orange
         set pcolor 29
         set maturation_age maturation_age4
@@ -136,19 +138,16 @@ to plant-seeds [number breed_type] ;; TODO: choose seeds to plant if seeds > emp
   update-empty-patches
 end
 
-to plant-all-seeds ;; number of plants proportional to number of seeds - change to more stochastic?
-  show word "seeds=" seeds
+to plant-all-seeds
   ifelse (sum seeds > count empty_patches) and (sum seeds > 0)[
-    choose-seeds-random
-    ;set choosen_seeds map [floor ((?1 / sum seeds) * (count empty_patches))] seeds  ;; if there is more seeds than empty spaces, some spaces may be left empty due to underestimation -- fix it? 
+    choose-seeds-random 
   ]
   [set choosen_seeds seeds]
-  show word "choosen=" choosen_seeds
   (foreach (choosen_seeds) (list (plantsType1) (plantsType2) (plantsType3) (plantsType4)) [
     plant-seeds ?1 ?2 ])
 end
 
-to choose-seeds-random
+to choose-seeds-random ;; randomly choose seeds to plant (for choosing each seed: probability proportional to number of seeds of each type)
   set choosen_seeds n-values 4 [0]
   repeat (count empty_patches) [
     set seed_index random (sum seeds)
@@ -156,7 +155,11 @@ to choose-seeds-random
   ]
 end
 
-to-report add-chosen-seed [number]
+to choose-seeds-deterministic ;; alternative for choose-seeds-random. Number of choosen seeds exactly proportional to the number of seeds of each type. Possibly leaving free spaces (underestimation).
+  set choosen_seeds map [floor ((?1 / sum seeds) * (count empty_patches))] seeds
+end
+
+to-report add-chosen-seed [number] ;; check type of chosen seed and add it to chosen_seeds (and remove it from seeds)
   set index 0
   set sum_seeds (item 0 seeds)
   repeat 4 [
@@ -171,10 +174,6 @@ to-report add-chosen-seed [number]
       set sum_seeds (sum_seeds + item index seeds)   
     ]
   ]
-end
-
-to choose-seeds-deterministic
-  set choosen_seeds map [floor ((?1 / sum seeds) * (count empty_patches))] seeds
 end
 
 to update-empty-patches
@@ -209,6 +208,7 @@ end
 to add_seeds [number breed_type]
   set index (read-from-string (last (word breed_type)) - 1)
   set seeds (replace-item index seeds (item index seeds + number))
+  set all_seeds (replace-item index all_seeds (item index all_seeds + number))
 end
 
 to reproduce_once ;; in turtle context: semelparity
@@ -228,6 +228,12 @@ to-report count_energy [time] ;; in turtle context: count energy amount after [t
     set energy_amount (grow energy_amount)
   ]
   report energy_amount
+end
+
+to-report count-liftime-reproduction [number]
+  ifelse ((item number all_plants) != 0)
+  [report (item number all_seeds) / (item number all_plants)]
+  [report 0]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -398,7 +404,7 @@ annual_mortality
 annual_mortality
 0
 1
-0.45
+0.5
 0.05
 1
 NIL
@@ -423,10 +429,10 @@ NIL
 
 PLOT
 1127
-15
+10
 1327
-281
-plants structure
+182
+plants
 time
 number of plants
 0.0
@@ -443,11 +449,11 @@ PENS
 "4" 1.0 0 -955883 true "" "plotxy ticks count plantsType4"
 
 PLOT
-1126
-302
-1326
-547
-seeds structure
+1127
+185
+1327
+352
+seeds
 time
 number of seeds
 0.0
@@ -472,7 +478,7 @@ simulation_time
 simulation_time
 0
 1000
-40
+200
 10
 1
 NIL
@@ -502,7 +508,7 @@ SWITCH
 184
 asynchronize?
 asynchronize?
-0
+1
 1
 -1000
 
@@ -556,17 +562,43 @@ CC Marta Czarnocka-Cieciura, 2015
 0.0
 1
 
+PLOT
+1128
+361
+1328
+511
+seeds per plant
+plant type
+seeds
+0.0
+4.0
+0.0
+10.0
+true
+false
+"" "clear-plot\nforeach [1 2 3 4] [\n  set-current-plot-pen word \"pen\" ?\n  plotxy (? - 1) 0\n  plotxy (? - 1) (count-liftime-reproduction (? - 1))\n  plotxy (?) (count-liftime-reproduction (? - 1))\n  plotxy ? 0\n]"
+PENS
+"pen1" 1.0 0 -5825686 true "" ""
+"pen2" 1.0 0 -13345367 true "" ""
+"pen3" 1.0 0 -10899396 true "" ""
+"pen4" 1.0 0 -955883 true "" ""
+
 @#$#@#$#@
 ## WHAT IS IT?
-This model simulates competition for spece between for simple, sedentary, plant-like organisms, using different life strategies, in sense of different maturation age and single or multiple reproduction.
+This model simulates competition for space between simple, sedentary, plant-like organisms. They use different life strategies, in sense of different maturation age and single or multiple reproduction.
 
-Life history theory is a part of the evolutionary biology that aims to explain how the duration and schedule of key events in life of organisms (such as development, sexual maturation and senescence) are shaped by natural selection to maximize the reproduction output of individual. This theory also points out the tradeoffs that each organism have to made in context of resource allocation into growth, reproduction and regeneration, quantity or quality of offspring, predator avoidance versus maximization of food intake etc. 
+[Life history theory](http://en.wikipedia.org/wiki/Life_history_theory) is a part of the evolutionary biology that aims to explain how the duration and schedule of key events in life of organisms (such as development, sexual maturation and senescence) are shaped by the natural selection to maximize the reproduction output of individuals. This theory puts emphasis on the tradeoffs that each organism have to make in the context of:
 
-The user can set  maturation age and reproduction investment of each plant type. Later maturation let the organism grow longer and hence make it able to invest more in seed production in the future. In the contrary, earlier maturation makes the plant more likely to survive to the reproduction age and because of shorter generation time, population of such plants are able to grow more rapidly, producing grandchildren and grand-grandchildren before their competitors even start reproduction.
+* resource allocation into growth, reproduction and regeneration, 
+* quantity vs quality of offspring,
+* predator avoidance vs maximization of food intake,
+* etc. 
 
-The reproduction investment settings allows user to choose between semelparous or iteroparous strategy of each plant type. Semelparity is observed in many real-world plants (eg. wheat, carrot, agava, bamboo) and some animals (eg. mayfly, some species of squids and salmons), and means that organism reproduce only onece in its life, uses all resources in offspring production and die shortly afterwards. The second strategy, iteroparity, means that only part of the resources is used for offspring production and the remaining part is spend for survival untill next breeding season.
+In this simulation the user can set maturation age and reproduction investment of each plant type. Later maturation let the organism grow longer and hence make it able to invest more in future seed production. On the contrary, earlier maturation makes the plant more likely to survive to the reproduction age. Thanks to shorter generation time, population of such plants are able to grow more rapidly, producing grandchildren and grand-grandchildren before their competitors even start reproducing.
 
-This model allows user to test performance of each arbitrally choosed strategy and its competitive abilities. The limiting factor is the free space and the winner in contest for each available spot (left after death of the resident plant) depends only on whole amount of seeds of each type in the population. Hence the competition is mediated by the limited resources, not interactions between individuals (finite version of "nest site lottery" [1])
+The reproduction investment settings allows user to choose between [semelparous or iteroparous](http://en.wikipedia.org/wiki/Semelparity_and_iteroparity) strategy of each plant type. Semelparity means that an organism reproduce only onece in its life, uses all its resources in the offspring production and dies shortly afterwards. It is observed in many real-world plants (eg. wheat, carrot, agava, bamboo) and some animals (eg. mayfly, some species of squids and salmons). The second strategy, iteroparity, means that only part of the resources is used for offspring production and the remaining part is spend for survival untill the next breeding season.
+
+This model allows user to test performance and competitive abilities of each arbitrally chosen strategy. The limiting factor, for which plants compete, is the free space. The competition is mediated by the limited resources, not interactions between individuals (finite version of the "nest site lottery" [1]).
 
 ## HOW IT WORKS
 
@@ -597,7 +629,7 @@ This model allows user to test performance of each arbitrally choosed strategy a
 (models in the NetLogo Models Library and elsewhere which are of related interest)
 
 ## CREDITS AND REFERENCES
-[1] Argasinski, K., & Broom, M. (2013). The nest site lottery: How selectively neutral density dependent growth suppression induces frequency dependent selection. Theoretical population biology, 90, 82-90. ([doi:10.1016/j.tpb.2013.09.011](http://dx.doi.org/10.1016/j.tpb.2013.09.011), see on ArXiv: http://arxiv.org/abs/1303.0564)
+[1] Argasinski, K., & Broom, M. (2013). **The nest site lottery: How selectively neutral density dependent growth suppression induces frequency dependent selection.** Theoretical Population Biology, 90, 82-90. [doi:10.1016/j.tpb.2013.09.011](http://dx.doi.org/10.1016/j.tpb.2013.09.011), freely available on ArXiv: [arXiv:1303.0564](http://arxiv.org/abs/1303.0564).
 (a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
 @#$#@#$#@
 default
@@ -798,7 +830,7 @@ false
 Rectangle -7500403 true true 135 270 165 300
 Polygon -7500403 true true 135 285 90 240 45 225 75 270 135 300
 Polygon -7500403 true true 165 285 210 240 255 225 225 270 165 300
-Polygon -7500403 true true 135 285 135 270 150 240 165 270 165 270
+Polygon -7500403 true true 135 285 135 270 150 240 165 270
 
 plant_age1_flower
 false
@@ -814,7 +846,7 @@ false
 Rectangle -7500403 true true 135 225 165 300
 Polygon -7500403 true true 135 285 90 240 45 225 75 270 135 300
 Polygon -7500403 true true 165 285 210 240 255 225 225 270 165 300
-Polygon -7500403 true true 135 225 135 225 150 195 165 225 165 225
+Polygon -7500403 true true 135 225 150 195 165 225
 Polygon -7500403 true true 165 240 210 195 255 180 225 225 165 255
 Polygon -7500403 true true 135 240 90 195 45 180 75 225 135 255
 
@@ -826,7 +858,7 @@ Polygon -7500403 true true 135 285 90 240 45 225 75 270 135 300
 Polygon -7500403 true true 165 285 210 240 255 225 225 270 165 300
 Polygon -7500403 true true 165 240 210 195 255 180 225 225 165 255
 Polygon -7500403 true true 135 240 90 195 45 180 75 225 135 255
-Polygon -7500403 true true 135 225 135 225 120 210 105 180 105 150 120 180 135 150 150 180 165 150 180 180 195 150 195 180 180 210 165 225 135 225 135 225
+Polygon -7500403 true true 135 225 120 210 105 180 105 150 120 180 135 150 150 180 165 150 180 180 195 150 195 180 180 210 165 225 135 225
 
 plant_age3
 false
@@ -834,7 +866,7 @@ false
 Rectangle -7500403 true true 135 180 165 300
 Polygon -7500403 true true 135 285 90 240 45 225 75 270 135 300
 Polygon -7500403 true true 165 285 210 240 255 225 225 270 165 300
-Polygon -7500403 true true 135 180 135 180 150 150 165 180 165 180
+Polygon -7500403 true true 135 180 150 150 165 180
 Polygon -7500403 true true 165 240 210 195 255 180 225 225 165 255
 Polygon -7500403 true true 135 240 90 195 45 180 75 225 135 255
 Polygon -7500403 true true 165 195 210 150 255 135 225 180 165 210
@@ -850,7 +882,7 @@ Polygon -7500403 true true 165 240 210 195 255 180 225 225 165 255
 Polygon -7500403 true true 135 240 90 195 45 180 75 225 135 255
 Polygon -7500403 true true 165 195 210 150 255 135 225 180 165 210
 Polygon -7500403 true true 135 195 90 150 45 135 75 180 135 210
-Polygon -7500403 true true 135 180 135 180 120 165 105 135 105 105 120 135 135 105 150 135 165 105 180 135 195 105 195 135 180 165 165 180
+Polygon -7500403 true true 135 180 120 165 105 135 105 105 120 135 135 105 150 135 165 105 180 135 195 105 195 135 180 165 165 180
 
 plant_age4
 false
@@ -858,7 +890,7 @@ false
 Rectangle -7500403 true true 135 135 165 300
 Polygon -7500403 true true 135 285 90 240 45 225 75 270 135 300
 Polygon -7500403 true true 165 285 210 240 255 225 225 270 165 300
-Polygon -7500403 true true 135 135 135 135 150 105 165 135 165 135
+Polygon -7500403 true true 135 135 150 105 165 135
 Polygon -7500403 true true 165 240 210 195 255 180 225 225 165 255
 Polygon -7500403 true true 135 240 90 195 45 180 75 225 135 255
 Polygon -7500403 true true 165 195 210 150 255 135 225 180 165 210
@@ -878,7 +910,7 @@ Polygon -7500403 true true 165 195 210 150 255 135 225 180 165 210
 Polygon -7500403 true true 165 150 210 105 255 90 225 135 165 165
 Polygon -7500403 true true 135 195 90 150 45 135 75 180 135 210
 Polygon -7500403 true true 135 150 90 105 45 90 75 135 135 165
-Polygon -7500403 true true 135 135 135 135 120 120 105 90 105 60 120 90 135 60 150 90 165 60 180 90 195 60 195 90 180 120 165 135
+Polygon -7500403 true true 135 135 120 120 105 90 105 60 120 90 135 60 150 90 165 60 180 90 195 60 195 90 180 120 165 135
 
 plant_age5
 false
@@ -886,7 +918,7 @@ false
 Rectangle -7500403 true true 135 90 165 300
 Polygon -7500403 true true 135 285 90 240 45 225 75 270 135 300
 Polygon -7500403 true true 165 285 210 240 255 225 225 270 165 300
-Polygon -7500403 true true 135 90 135 90 150 60 165 90 165 90
+Polygon -7500403 true true 135 90 150 60 165 90
 Polygon -7500403 true true 165 240 210 195 255 180 225 225 165 255
 Polygon -7500403 true true 135 240 90 195 45 180 75 225 135 255
 Polygon -7500403 true true 165 195 210 150 255 135 225 180 165 210
