@@ -7,7 +7,7 @@
 ; OK klarowniejszy interfejs
 ; OK go n-steps
 
-globals [seeds choosen_seeds empty_patches start_energy index energy_amount break seed_index sum_seeds all_seeds all_plants]
+globals [seeds choosen_seeds empty_patches start_energy index energy_amount break seed_index sum_seeds all_seeds all_plants expected_seeds]
 
 breed [plantsType1 plant1]
 breed [plantsType2 plant2]
@@ -25,7 +25,7 @@ to setup
   ask patches [ ;; szachownica
     set pcolor white
   ]
-  set start_energy 5
+  set start_energy 1
   update-empty-patches
   set seeds (n-values 4 [initial_plants])
   set all_seeds (n-values 4 [0])
@@ -235,6 +235,28 @@ to-report count-liftime-reproduction [number]
   [report (item number all_seeds) / (item number all_plants)]
   [report 0]
 end
+
+;to-report precision [number n] ;; calculates the number with n-decimal places (after comma)
+;  report (round (number * 10 ^ n)) / 10 ^ n
+;end
+
+to-report count-expected-seeds [maturation semelparous]
+  ifelse semelparous [
+    report precision (start_energy * (2 * (1 - annual_mortality)) ^ maturation) 1 
+  ]
+  [
+    report precision ((1 / (2 * annual_mortality)) * start_energy * (2 * (1 - annual_mortality)) ^ maturation) 1
+  ]
+end
+
+to-report expected-seeds
+  ifelse show_expected_seeds? [
+    report (map count-expected-seeds (list maturation_age1 maturation_age2 maturation_age3 maturation_age4) (list semelparity1 semelparity2 semelparity3 semelparity4))
+  ]
+  [
+    report "hidden!"
+  ]
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 354
@@ -286,7 +308,7 @@ INPUTBOX
 110
 140
 initial_plants
-10
+20
 1
 0
 Number
@@ -380,7 +402,7 @@ SWITCH
 295
 semelparity3
 semelparity3
-1
+0
 1
 -1000
 
@@ -391,7 +413,7 @@ SWITCH
 404
 semelparity4
 semelparity4
-1
+0
 1
 -1000
 
@@ -404,7 +426,7 @@ annual_mortality
 annual_mortality
 0
 1
-0.5
+0.35
 0.05
 1
 NIL
@@ -428,10 +450,10 @@ NIL
 1
 
 PLOT
-1127
-10
-1327
-182
+1125
+17
+1325
+189
 plants
 time
 number of plants
@@ -449,10 +471,10 @@ PENS
 "4" 1.0 0 -955883 true "" "plotxy ticks count plantsType4"
 
 PLOT
-1127
-185
-1327
-352
+1124
+196
+1324
+368
 seeds
 time
 number of seeds
@@ -478,7 +500,7 @@ simulation_time
 simulation_time
 0
 1000
-200
+80
 10
 1
 NIL
@@ -508,7 +530,7 @@ SWITCH
 184
 asynchronize?
 asynchronize?
-1
+0
 1
 -1000
 
@@ -553,20 +575,20 @@ orange
 1
 
 TEXTBOX
-67
-466
-348
-507
+56
+520
+337
+538
 CC Marta Czarnocka-Cieciura, 2015
 12
 0.0
 1
 
 PLOT
-1128
-361
-1328
-511
+1125
+376
+1325
+545
 seeds per plant
 plant type
 seeds
@@ -582,6 +604,28 @@ PENS
 "pen2" 1.0 0 -13345367 true "" ""
 "pen3" 1.0 0 -10899396 true "" ""
 "pen4" 1.0 0 -955883 true "" ""
+
+SWITCH
+42
+409
+293
+442
+show_expected_seeds?
+show_expected_seeds?
+0
+1
+-1000
+
+MONITOR
+44
+456
+163
+501
+expected_seeds
+expected-seeds
+1
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
