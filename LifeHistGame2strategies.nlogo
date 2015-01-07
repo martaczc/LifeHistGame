@@ -11,8 +11,6 @@ globals [seeds choosen_seeds empty_patches start_energy index energy_amount brea
 
 breed [plantsType1 plant1]
 breed [plantsType2 plant2]
-breed [plantsType3 plant3]
-breed [plantsType4 plant4]
 breed [walls wall]
 
 turtles-own [energy maturation_age maturation_energy reproduce age stage mature] ;; maturation, semelparity
@@ -25,11 +23,11 @@ to setup
   ask patches [ ;; szachownica
     set pcolor white
   ]
-  set start_energy 1
+  set start_energy 5
   update-empty-patches
-  set seeds (n-values 4 [initial_plants])
-  set all_seeds (n-values 4 [0])
-  set all_plants (n-values 4 [0])
+  set seeds (n-values 2 [initial_plants])
+  set all_seeds (n-values 2 [0])
+  set all_plants (n-values 2 [0])
   set-default-shape turtles "seed"
   plant-all-seeds
   if asynchronize? [asynchronize]  
@@ -49,7 +47,7 @@ to asynchronize
 end
 
 to go
-  set seeds n-values 4 [0]
+  set seeds n-values 2 [0]
   ask turtles [
     plant-cycle
   ]
@@ -105,31 +103,11 @@ to plant-seeds [number breed_type] ;; TODO: choose seeds to plant if seeds > emp
       ]
       if breed_type = plantsType2 [
         set all_plants (replace-item 1 all_plants ((item 1 all_plants) + 1))
-        set color blue
-        set pcolor 99
+        set color green
+        set pcolor 69
         set maturation_age maturation_age2
         set maturation_energy (count_energy maturation_age2 - 1)
         ifelse semelparity2 
-        [set reproduce task reproduce_once] 
-        [set reproduce task reproduce_multiple]
-      ]
-      if breed_type = plantsType3 [
-        set all_plants (replace-item 2 all_plants ((item 2 all_plants) + 1))
-        set color green
-        set pcolor 69
-        set maturation_age maturation_age3
-        set maturation_energy (count_energy maturation_age3 - 1)
-        ifelse semelparity3 
-        [set reproduce task reproduce_once] 
-        [set reproduce task reproduce_multiple]
-      ]  
-      if breed_type = plantsType4 [
-        set all_plants (replace-item 3 all_plants ((item 3 all_plants) + 1))
-        set color orange
-        set pcolor 29
-        set maturation_age maturation_age4
-        set maturation_energy (count_energy maturation_age4 - 1)
-        ifelse semelparity4 
         [set reproduce task reproduce_once] 
         [set reproduce task reproduce_multiple]
       ]    
@@ -143,12 +121,12 @@ to plant-all-seeds
     choose-seeds-random 
   ]
   [set choosen_seeds seeds]
-  (foreach (choosen_seeds) (list (plantsType1) (plantsType2) (plantsType3) (plantsType4)) [
+  (foreach (choosen_seeds) (list (plantsType1) (plantsType2)) [
     plant-seeds ?1 ?2 ])
 end
 
 to choose-seeds-random ;; randomly choose seeds to plant (for choosing each seed: probability proportional to number of seeds of each type)
-  set choosen_seeds n-values 4 [0]
+  set choosen_seeds n-values 2 [0]
   repeat (count empty_patches) [
     set seed_index random (sum seeds)
     set choosen_seeds (add-chosen-seed seed_index)
@@ -159,10 +137,10 @@ to choose-seeds-deterministic ;; alternative for choose-seeds-random. Number of 
   set choosen_seeds map [floor ((?1 / sum seeds) * (count empty_patches))] seeds
 end
 
-to-report add-chosen-seed [number] ;; check type of chosen seed and add it to chosen_seeds (and remove it from seeds)
+to-report add-chosen-seed [number] ;; check type of chosen seed and add it to chosen_seeds (and remove it from seeds) ;; inefficient for 2 types!!!
   set index 0
   set sum_seeds (item 0 seeds)
-  repeat 4 [
+  repeat 2 [
     ifelse (number < sum_seeds)
     [
       set seeds (replace-item index seeds ((item index seeds) - 1))
@@ -247,7 +225,7 @@ end
 
 to-report expected-seeds
   ifelse show_expected_seeds? [
-    report (map count-expected-seeds (list maturation_age1 maturation_age2 maturation_age3 maturation_age4) (list semelparity1 semelparity2 semelparity3 semelparity4))
+    report (map count-expected-seeds (list maturation_age1 maturation_age2) (list semelparity1 semelparity2))
   ]
   [
     report "hidden!"
@@ -310,10 +288,10 @@ initial_plants
 Number
 
 SLIDER
-7
-223
-161
-256
+93
+217
+247
+250
 maturation_age1
 maturation_age1
 1
@@ -325,10 +303,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-10
-332
-168
-365
+96
+326
+254
+359
 maturation_age2
 maturation_age2
 1
@@ -339,41 +317,11 @@ maturation_age2
 NIL
 HORIZONTAL
 
-SLIDER
-182
-223
-339
-256
-maturation_age3
-maturation_age3
-1
-5
-3
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-187
-332
-349
-365
-maturation_age4
-maturation_age4
-1
-5
-4
-1
-1
-NIL
-HORIZONTAL
-
 SWITCH
-9
-261
-158
-294
+95
+255
+244
+288
 semelparity1
 semelparity1
 1
@@ -381,34 +329,12 @@ semelparity1
 -1000
 
 SWITCH
-15
-370
-164
-403
+101
+364
+250
+397
 semelparity2
 semelparity2
-1
-1
--1000
-
-SWITCH
-186
-262
-335
-295
-semelparity3
-semelparity3
-1
-1
--1000
-
-SWITCH
-194
-371
-343
-404
-semelparity4
-semelparity4
 1
 1
 -1000
@@ -462,9 +388,7 @@ true
 "" ""
 PENS
 "1" 1.0 0 -5825686 true "" "plotxy ticks count plantsType1"
-"2" 1.0 0 -13345367 true "" "plotxy ticks count plantsType2"
-"3" 1.0 0 -10899396 true "" "plotxy ticks count plantsType3"
-"4" 1.0 0 -955883 true "" "plotxy ticks count plantsType4"
+"2" 1.0 0 -10899396 true "" "plotxy ticks count plantsType2"
 
 PLOT
 1124
@@ -483,9 +407,7 @@ true
 "" ""
 PENS
 "1" 1.0 0 -5825686 true "" "plotxy ticks (item 0 seeds)"
-"2" 1.0 0 -13345367 true "" "plotxy ticks (item 1 seeds)"
-"3" 1.0 0 -10899396 true "" "plotxy ticks (item 2 seeds)"
-"4" 1.0 0 -955883 true "" "plotxy ticks (item 3 seeds)"
+"2" 1.0 0 -10899396 true "" "plotxy ticks (item 1 seeds)"
 
 SLIDER
 129
@@ -531,43 +453,23 @@ asynchronize?
 -1000
 
 TEXTBOX
-55
-202
-205
-220
+141
+196
+291
+214
 magenta
 14
 125.0
 1
 
 TEXTBOX
-66
-315
-216
-333
-blue
-14
-105.0
-1
-
-TEXTBOX
-247
-202
-397
-220
+152
+309
+302
+327
 green
 14
 55.0
-1
-
-TEXTBOX
-236
-314
-386
-332
-orange
-14
-25.0
 1
 
 TEXTBOX
@@ -589,17 +491,15 @@ seeds per plant
 plant type
 seeds
 0.0
-4.0
+2.0
 0.0
 10.0
 true
 false
-"" "clear-plot\nforeach [1 2 3 4] [\n  set-current-plot-pen word \"pen\" ?\n  plotxy (? - 1) 0\n  plotxy (? - 1) (count-liftime-reproduction (? - 1))\n  plotxy (?) (count-liftime-reproduction (? - 1))\n  plotxy ? 0\n]"
+"" "clear-plot\nforeach [1 2] [\n  set-current-plot-pen word \"pen\" ?\n  plotxy (? - 1) 0\n  plotxy (? - 1) (count-liftime-reproduction (? - 1))\n  plotxy (?) (count-liftime-reproduction (? - 1))\n  plotxy ? 0\n]"
 PENS
 "pen1" 1.0 0 -5825686 true "" ""
-"pen2" 1.0 0 -13345367 true "" ""
-"pen3" 1.0 0 -10899396 true "" ""
-"pen4" 1.0 0 -955883 true "" ""
+"pen2" 1.0 0 -10899396 true "" ""
 
 SWITCH
 42
@@ -613,10 +513,10 @@ show_expected_seeds?
 -1000
 
 MONITOR
-44
-456
-163
-501
+116
+455
+219
+500
 expected_seeds
 expected-seeds
 1

@@ -13,6 +13,7 @@ breed [plantsType1 plant1]
 breed [plantsType2 plant2]
 breed [plantsType3 plant3]
 breed [plantsType4 plant4]
+breed [plantsType5 plant5]
 breed [walls wall]
 
 turtles-own [energy maturation_age maturation_energy reproduce age stage mature] ;; maturation, semelparity
@@ -27,9 +28,9 @@ to setup
   ]
   set start_energy 1
   update-empty-patches
-  set seeds (n-values 4 [initial_plants])
-  set all_seeds (n-values 4 [0])
-  set all_plants (n-values 4 [0])
+  set seeds (n-values 5 [initial_plants])
+  set all_seeds (n-values 5 [0])
+  set all_plants (n-values 5 [0])
   set-default-shape turtles "seed"
   plant-all-seeds
   if asynchronize? [asynchronize]  
@@ -49,7 +50,7 @@ to asynchronize
 end
 
 to go
-  set seeds n-values 4 [0]
+  set seeds n-values 5 [0]
   ask turtles [
     plant-cycle
   ]
@@ -132,7 +133,17 @@ to plant-seeds [number breed_type] ;; TODO: choose seeds to plant if seeds > emp
         ifelse semelparity4 
         [set reproduce task reproduce_once] 
         [set reproduce task reproduce_multiple]
-      ]    
+      ]  
+        if breed_type = plantsType5 [
+        set all_plants (replace-item 4 all_plants ((item 4 all_plants) + 1))
+        set color brown
+        set pcolor 39
+        set maturation_age maturation_age5
+        set maturation_energy (count_energy maturation_age5 - 1)
+        ifelse semelparity5 
+        [set reproduce task reproduce_once] 
+        [set reproduce task reproduce_multiple]
+      ]   
     ]
   ]
   update-empty-patches
@@ -143,12 +154,12 @@ to plant-all-seeds
     choose-seeds-random 
   ]
   [set choosen_seeds seeds]
-  (foreach (choosen_seeds) (list (plantsType1) (plantsType2) (plantsType3) (plantsType4)) [
+  (foreach (choosen_seeds) (list (plantsType1) (plantsType2) (plantsType3) (plantsType4) (plantsType5)) [
     plant-seeds ?1 ?2 ])
 end
 
 to choose-seeds-random ;; randomly choose seeds to plant (for choosing each seed: probability proportional to number of seeds of each type)
-  set choosen_seeds n-values 4 [0]
+  set choosen_seeds n-values 5 [0]
   repeat (count empty_patches) [
     set seed_index random (sum seeds)
     set choosen_seeds (add-chosen-seed seed_index)
@@ -162,7 +173,7 @@ end
 to-report add-chosen-seed [number] ;; check type of chosen seed and add it to chosen_seeds (and remove it from seeds)
   set index 0
   set sum_seeds (item 0 seeds)
-  repeat 4 [
+  repeat 5 [
     ifelse (number < sum_seeds)
     [
       set seeds (replace-item index seeds ((item index seeds) - 1))
@@ -247,7 +258,7 @@ end
 
 to-report expected-seeds
   ifelse show_expected_seeds? [
-    report (map count-expected-seeds (list maturation_age1 maturation_age2 maturation_age3 maturation_age4) (list semelparity1 semelparity2 semelparity3 semelparity4))
+    report (map count-expected-seeds (list maturation_age1 maturation_age2 maturation_age3 maturation_age4 maturation_age5) (list semelparity1 semelparity2 semelparity3 semelparity4 semelparity5))
   ]
   [
     report "hidden!"
@@ -283,9 +294,9 @@ ticks
 
 BUTTON
 37
-21
+10
 110
-54
+43
 setup
 setup
 NIL
@@ -299,10 +310,10 @@ NIL
 1
 
 INPUTBOX
-30
-80
-110
-140
+249
+10
+329
+70
 initial_plants
 20
 1
@@ -310,10 +321,10 @@ initial_plants
 Number
 
 SLIDER
-7
-223
-161
-256
+8
+158
+162
+191
 maturation_age1
 maturation_age1
 1
@@ -325,10 +336,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-10
-332
-168
-365
+11
+267
+169
+300
 maturation_age2
 maturation_age2
 1
@@ -340,10 +351,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-182
-223
-339
-256
+183
+158
+340
+191
 maturation_age3
 maturation_age3
 1
@@ -355,10 +366,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-187
-332
-349
-365
+188
+267
+350
+300
 maturation_age4
 maturation_age4
 1
@@ -370,10 +381,10 @@ NIL
 HORIZONTAL
 
 SWITCH
-9
-261
-158
-294
+10
+196
+159
+229
 semelparity1
 semelparity1
 1
@@ -381,10 +392,10 @@ semelparity1
 -1000
 
 SWITCH
-15
-370
-164
-403
+16
+305
+165
+338
 semelparity2
 semelparity2
 1
@@ -392,10 +403,10 @@ semelparity2
 -1000
 
 SWITCH
-186
-262
-335
-295
+187
+197
+336
+230
 semelparity3
 semelparity3
 1
@@ -403,10 +414,10 @@ semelparity3
 -1000
 
 SWITCH
-194
-371
-343
-404
+195
+306
+344
+339
 semelparity4
 semelparity4
 1
@@ -414,10 +425,10 @@ semelparity4
 -1000
 
 SLIDER
-129
-109
-309
-142
+13
+91
+193
+124
 annual_mortality
 annual_mortality
 0
@@ -429,10 +440,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-128
-22
-191
-55
+112
+10
+175
+43
 go
 go
 NIL
@@ -465,6 +476,7 @@ PENS
 "2" 1.0 0 -13345367 true "" "plotxy ticks count plantsType2"
 "3" 1.0 0 -10899396 true "" "plotxy ticks count plantsType3"
 "4" 1.0 0 -955883 true "" "plotxy ticks count plantsType4"
+"5" 1.0 0 -6459832 true "" "plotxy ticks count plantsType5"
 
 PLOT
 1124
@@ -486,12 +498,13 @@ PENS
 "2" 1.0 0 -13345367 true "" "plotxy ticks (item 1 seeds)"
 "3" 1.0 0 -10899396 true "" "plotxy ticks (item 2 seeds)"
 "4" 1.0 0 -955883 true "" "plotxy ticks (item 3 seeds)"
+"5" 1.0 0 -6459832 true "" "plotxy ticks (item 4 seeds)"
 
 SLIDER
-129
-68
-307
-101
+13
+50
+191
+83
 simulation_time
 simulation_time
 0
@@ -503,10 +516,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-214
-23
-278
-56
+178
+10
+242
+43
 NIL
 go-n
 NIL
@@ -520,10 +533,10 @@ NIL
 1
 
 SWITCH
-135
-151
-292
-184
+200
+76
+337
+109
 asynchronize?
 asynchronize?
 0
@@ -531,40 +544,40 @@ asynchronize?
 -1000
 
 TEXTBOX
-55
-202
-205
-220
+56
+137
+206
+155
 magenta
 14
 125.0
 1
 
 TEXTBOX
-66
-315
-216
-333
+67
+250
+217
+268
 blue
 14
 105.0
 1
 
 TEXTBOX
-247
-202
-397
-220
+248
+137
+398
+155
 green
 14
 55.0
 1
 
 TEXTBOX
-236
-314
-386
-332
+237
+249
+387
+267
 orange
 14
 25.0
@@ -589,23 +602,24 @@ seeds per plant
 plant type
 seeds
 0.0
-4.0
+5.0
 0.0
 10.0
 true
 false
-"" "clear-plot\nforeach [1 2 3 4] [\n  set-current-plot-pen word \"pen\" ?\n  plotxy (? - 1) 0\n  plotxy (? - 1) (count-liftime-reproduction (? - 1))\n  plotxy (?) (count-liftime-reproduction (? - 1))\n  plotxy ? 0\n]"
+"" "clear-plot\nforeach [1 2 3 4 5] [\n  set-current-plot-pen word \"pen\" ?\n  plotxy (? - 1) 0\n  plotxy (? - 1) (count-liftime-reproduction (? - 1))\n  plotxy (?) (count-liftime-reproduction (? - 1))\n  plotxy ? 0\n]"
 PENS
 "pen1" 1.0 0 -5825686 true "" ""
 "pen2" 1.0 0 -13345367 true "" ""
 "pen3" 1.0 0 -10899396 true "" ""
 "pen4" 1.0 0 -955883 true "" ""
+"pen5" 1.0 0 -6459832 true "" ""
 
 SWITCH
-42
-409
-293
-442
+4
+463
+203
+496
 show_expected_seeds?
 show_expected_seeds?
 1
@@ -613,15 +627,51 @@ show_expected_seeds?
 -1000
 
 MONITOR
-44
-456
-163
-501
+206
+458
+351
+503
 expected_seeds
 expected-seeds
 1
 1
 11
+
+TEXTBOX
+152
+352
+302
+370
+brown
+14
+35.0
+1
+
+SLIDER
+89
+368
+269
+401
+maturation_age5
+maturation_age5
+1
+5
+5
+1
+1
+NIL
+HORIZONTAL
+
+SWITCH
+103
+406
+252
+439
+semelparity5
+semelparity5
+1
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
