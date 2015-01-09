@@ -7,20 +7,21 @@
 ; OK klarowniejszy interfejs
 ; OK go n-steps
 
-globals [seeds choosen_seeds empty_patches start_energy index energy_amount break seed_index sum_seeds all_seeds all_plants expected_seeds]
+globals [seeds choosen_seeds empty_patches start_energy index energy_amount break seed_index sum_seeds all_seeds all_plants expected_seeds czas_symulacji wait_time]
 
 breed [plantsType1 plant1]
 breed [plantsType2 plant2]
 breed [plantsType3 plant3]
 breed [plantsType4 plant4]
-breed [plantsType5 plant5]
 breed [walls wall]
 
-turtles-own [energy maturation_age maturation_energy reproduce age stage mature] ;; maturation, semelparity
+turtles-own [energy dojrzewanie maturation_energy reproduce age stage mature] ;; maturation, semelparycznosc
 
 
 to setup
   clear-all
+  set czas_symulacji 100
+  set wait_time 0.25
   draw-edges gray
   set break false
   ask patches [ ;; szachownica
@@ -28,19 +29,19 @@ to setup
   ]
   set start_energy 5
   update-empty-patches
-  set seeds (n-values 5 [initial_plants])
-  set all_seeds (n-values 5 [0])
-  set all_plants (n-values 5 [0])
+  set seeds (n-values 4 [roslin_na_start])
+  set all_seeds (n-values 4 [0])
+  set all_plants (n-values 4 [0])
   set-default-shape turtles "seed"
   plant-all-seeds
-  if asynchronize? [asynchronize]  
+  asynchronize  
   
   reset-ticks
 end
 
 to asynchronize 
   ask turtles [
-  set age (random maturation_age) ;; set random age of plants (from range [0, maturation_age))
+  set age (random dojrzewanie) ;; set random age of plants (from range [0, dojrzewanie))
   set stage age
   set energy (count_energy age) ;; and set energy according to it
   ifelse (age = 0) 
@@ -50,7 +51,7 @@ to asynchronize
 end
 
 to go
-  set seeds n-values 5 [0]
+  set seeds n-values 4 [0]
   ask turtles [
     plant-cycle
   ]
@@ -61,7 +62,8 @@ to go
 end
 
 to go-n
-  repeat simulation_time [
+  repeat czas_symulacji [
+    wait wait_time
     go
     if (count turtles = 0) [stop]
   ] 
@@ -98,9 +100,9 @@ to plant-seeds [number breed_type] ;; TODO: choose seeds to plant if seeds > emp
         set all_plants (replace-item 0 all_plants ((item 0 all_plants) + 1))
         set color magenta
         set pcolor 129
-        set maturation_age maturation_age1
-        set maturation_energy (count_energy (maturation_age1 - 1))
-        ifelse semelparity1 
+        set dojrzewanie dojrzewanie1
+        set maturation_energy (count_energy (dojrzewanie1 - 1))
+        ifelse semelparycznosc1 
         [set reproduce task reproduce_once] 
         [set reproduce task reproduce_multiple]
       ]
@@ -108,9 +110,9 @@ to plant-seeds [number breed_type] ;; TODO: choose seeds to plant if seeds > emp
         set all_plants (replace-item 1 all_plants ((item 1 all_plants) + 1))
         set color blue
         set pcolor 99
-        set maturation_age maturation_age2
-        set maturation_energy (count_energy (maturation_age2 - 1))
-        ifelse semelparity2 
+        set dojrzewanie dojrzewanie2
+        set maturation_energy (count_energy (dojrzewanie2 - 1))
+        ifelse semelparycznosc2 
         [set reproduce task reproduce_once] 
         [set reproduce task reproduce_multiple]
       ]
@@ -118,9 +120,9 @@ to plant-seeds [number breed_type] ;; TODO: choose seeds to plant if seeds > emp
         set all_plants (replace-item 2 all_plants ((item 2 all_plants) + 1))
         set color green
         set pcolor 69
-        set maturation_age maturation_age3
-        set maturation_energy (count_energy (maturation_age3 - 1))
-        ifelse semelparity3 
+        set dojrzewanie dojrzewanie3
+        set maturation_energy (count_energy (dojrzewanie3 - 1))
+        ifelse semelparycznosc3 
         [set reproduce task reproduce_once] 
         [set reproduce task reproduce_multiple]
       ]  
@@ -128,22 +130,12 @@ to plant-seeds [number breed_type] ;; TODO: choose seeds to plant if seeds > emp
         set all_plants (replace-item 3 all_plants ((item 3 all_plants) + 1))
         set color orange
         set pcolor 29
-        set maturation_age maturation_age4
-        set maturation_energy (count_energy (maturation_age4 - 1))
-        ifelse semelparity4 
+        set dojrzewanie dojrzewanie4
+        set maturation_energy (count_energy (dojrzewanie4 - 1))
+        ifelse semelparycznosc4 
         [set reproduce task reproduce_once] 
         [set reproduce task reproduce_multiple]
-      ]  
-        if breed_type = plantsType5 [
-        set all_plants (replace-item 4 all_plants ((item 4 all_plants) + 1))
-        set color brown
-        set pcolor 39
-        set maturation_age maturation_age5
-        set maturation_energy (count_energy (maturation_age5 - 1))
-        ifelse semelparity5 
-        [set reproduce task reproduce_once] 
-        [set reproduce task reproduce_multiple]
-      ]   
+      ]    
     ]
   ]
   update-empty-patches
@@ -154,12 +146,12 @@ to plant-all-seeds
     choose-seeds-random 
   ]
   [set choosen_seeds seeds]
-  (foreach (choosen_seeds) (list (plantsType1) (plantsType2) (plantsType3) (plantsType4) (plantsType5)) [
+  (foreach (choosen_seeds) (list (plantsType1) (plantsType2) (plantsType3) (plantsType4)) [
     plant-seeds ?1 ?2 ])
 end
 
 to choose-seeds-random ;; randomly choose seeds to plant (for choosing each seed: probability proportional to number of seeds of each type)
-  set choosen_seeds n-values 5 [0]
+  set choosen_seeds n-values 4 [0]
   repeat (count empty_patches) [
     set seed_index random (sum seeds)
     set choosen_seeds (add-chosen-seed seed_index)
@@ -173,7 +165,7 @@ end
 to-report add-chosen-seed [number] ;; check type of chosen seed and add it to chosen_seeds (and remove it from seeds)
   set index 0
   set sum_seeds (item 0 seeds)
-  repeat 5 [
+  repeat 4 [
     ifelse (number < sum_seeds)
     [
       set seeds (replace-item index seeds ((item index seeds) - 1))
@@ -196,7 +188,7 @@ to-report grow [energy_val] ;; use in turtle context - exp growth
 end
 
 to plant-cycle ;; use in turtle context - exp growth
-  ifelse random-float 1 < annual_mortality[
+  ifelse random-float 1 < smiertelnosc_na_rok[
     set pcolor white
     die ;; first check survival
   ]
@@ -222,14 +214,16 @@ to add_seeds [number breed_type]
   set all_seeds (replace-item index all_seeds (item index all_seeds + number))
 end
 
-to reproduce_once ;; in turtle context: semelparity
+to reproduce_once ;; in turtle context: semelparycznosc
   add_seeds (floor energy) breed ;; all energy used for producion of seeds
+  ;;show (word "breed=" breed " semel" " stage=" stage " seeds=" (floor energy) " energy=" energy " maturation_energy=" maturation_energy)
   set pcolor white
   die
 end
 
 to reproduce_multiple ;; in turtle context: iteroparity
   add_seeds (floor (energy - maturation_energy)) breed
+  ;;show (word "breed=" breed " itero" " stage=" stage " seeds=" (floor (energy - maturation_energy)) " energy=" energy " maturation_energy=" maturation_energy)
   set energy maturation_energy
 end
 
@@ -249,19 +243,23 @@ end
 
 to-report count-expected-seeds [maturation semelparous]
   ifelse semelparous [
-    report precision (start_energy * (2 * (1 - annual_mortality)) ^ maturation) 1 
+    report precision (start_energy * (2 * (1 - smiertelnosc_na_rok)) ^ maturation) 1 
   ]
   [
-    report precision ((1 / (2 * annual_mortality)) * start_energy * (2 * (1 - annual_mortality)) ^ maturation) 1
+    report precision ((1 / (2 * smiertelnosc_na_rok)) * start_energy * (2 * (1 - smiertelnosc_na_rok)) ^ maturation) 1
   ]
 end
 
 to-report expected-seeds
-  ifelse show_expected_seeds? [
-    report (map count-expected-seeds (list maturation_age1 maturation_age2 maturation_age3 maturation_age4 maturation_age5) (list semelparity1 semelparity2 semelparity3 semelparity4 semelparity5))
+  ifelse pokaz_ile_nasion? [
+    ;;report (map count-expected-seeds (list dojrzewanie1 dojrzewanie2 dojrzewanie3 dojrzewanie4) (list semelparycznosc1 semelparycznosc2 semelparycznosc3 semelparycznosc4))
+    report (word " typ1=" count-expected-seeds dojrzewanie1 semelparycznosc1 
+      "  typ2=" count-expected-seeds dojrzewanie2 semelparycznosc2 
+      "  typ3=" count-expected-seeds dojrzewanie3 semelparycznosc3 
+      "  typ4=" count-expected-seeds dojrzewanie4 semelparycznosc4 )
   ]
   [
-    report "hidden!"
+    report "ukryte!"
   ]
 end
 @#$#@#$#@
@@ -294,10 +292,10 @@ ticks
 
 BUTTON
 37
-10
-110
-43
-setup
+21
+117
+54
+ustaw!
 setup
 NIL
 1
@@ -310,23 +308,23 @@ NIL
 1
 
 INPUTBOX
-249
-10
-329
-70
-initial_plants
+32
+68
+119
+128
+roslin_na_start
 20
 1
 0
 Number
 
 SLIDER
-8
-158
-162
-191
-maturation_age1
-maturation_age1
+5
+185
+159
+218
+dojrzewanie1
+dojrzewanie1
 1
 5
 1
@@ -336,12 +334,12 @@ NIL
 HORIZONTAL
 
 SLIDER
-11
-267
-169
-300
-maturation_age2
-maturation_age2
+8
+294
+166
+327
+dojrzewanie2
+dojrzewanie2
 1
 5
 2
@@ -351,12 +349,12 @@ NIL
 HORIZONTAL
 
 SLIDER
-183
-158
-340
-191
-maturation_age3
-maturation_age3
+180
+185
+337
+218
+dojrzewanie3
+dojrzewanie3
 1
 5
 3
@@ -366,12 +364,12 @@ NIL
 HORIZONTAL
 
 SLIDER
-188
-267
-350
-300
-maturation_age4
-maturation_age4
+185
+294
+347
+327
+dojrzewanie4
+dojrzewanie4
 1
 5
 4
@@ -381,56 +379,56 @@ NIL
 HORIZONTAL
 
 SWITCH
-10
-196
-159
-229
-semelparity1
-semelparity1
+4
+223
+169
+256
+semelparycznosc1
+semelparycznosc1
 1
 1
 -1000
 
 SWITCH
-16
-305
-165
-338
-semelparity2
-semelparity2
+7
+332
+173
+365
+semelparycznosc2
+semelparycznosc2
 1
 1
 -1000
 
 SWITCH
-187
-197
-336
-230
-semelparity3
-semelparity3
+180
+223
+345
+256
+semelparycznosc3
+semelparycznosc3
 1
 1
 -1000
 
 SWITCH
-195
-306
-344
-339
-semelparity4
-semelparity4
+182
+334
+350
+367
+semelparycznosc4
+semelparycznosc4
 1
 1
 -1000
 
 SLIDER
-13
-91
-193
-124
-annual_mortality
-annual_mortality
+127
+80
+336
+113
+smiertelnosc_na_rok
+smiertelnosc_na_rok
 0
 1
 0.5
@@ -440,11 +438,11 @@ NIL
 HORIZONTAL
 
 BUTTON
-112
-10
-175
-43
-go
+128
+21
+194
+54
+rok
 go
 NIL
 1
@@ -461,9 +459,9 @@ PLOT
 17
 1325
 189
-plants
-time
-number of plants
+rosliny
+czas
+liczba roslin
 0.0
 10.0
 0.0
@@ -476,16 +474,15 @@ PENS
 "2" 1.0 0 -13345367 true "" "plotxy ticks count plantsType2"
 "3" 1.0 0 -10899396 true "" "plotxy ticks count plantsType3"
 "4" 1.0 0 -955883 true "" "plotxy ticks count plantsType4"
-"5" 1.0 0 -6459832 true "" "plotxy ticks count plantsType5"
 
 PLOT
 1124
 196
 1324
 368
-seeds
-time
-number of seeds
+nasiona
+czas
+liczba nasion
 0.0
 10.0
 0.0
@@ -498,29 +495,13 @@ PENS
 "2" 1.0 0 -13345367 true "" "plotxy ticks (item 1 seeds)"
 "3" 1.0 0 -10899396 true "" "plotxy ticks (item 2 seeds)"
 "4" 1.0 0 -955883 true "" "plotxy ticks (item 3 seeds)"
-"5" 1.0 0 -6459832 true "" "plotxy ticks (item 4 seeds)"
-
-SLIDER
-13
-50
-191
-83
-simulation_time
-simulation_time
-0
-1000
-80
-10
-1
-NIL
-HORIZONTAL
 
 BUTTON
-178
-10
-242
-43
-NIL
+209
+22
+294
+55
+100_lat
 go-n
 NIL
 1
@@ -532,62 +513,51 @@ NIL
 NIL
 1
 
-SWITCH
-200
-76
-337
-109
-asynchronize?
-asynchronize?
-0
-1
--1000
-
 TEXTBOX
-56
-137
-206
-155
-magenta
+44
+164
+194
+182
+purpurowe
 14
 125.0
 1
 
 TEXTBOX
-67
-250
-217
-268
-blue
+47
+277
+197
+295
+niebieskie
 14
 105.0
 1
 
 TEXTBOX
-248
-137
-398
-155
-green
+234
+164
+384
+182
+zielone
 14
 55.0
 1
 
 TEXTBOX
-237
-249
-387
-267
-orange
+220
+276
+370
+294
+pomaranczowe
 14
 25.0
 1
 
 TEXTBOX
-56
-520
-337
-538
+44
+526
+325
+544
 CC Marta Czarnocka-Cieciura, 2015
 12
 0.0
@@ -598,80 +568,43 @@ PLOT
 376
 1325
 545
-seeds per plant
-plant type
-seeds
+nasion na rosline
+typ roslin
+srednio nasion
 0.0
-5.0
+4.0
 0.0
 10.0
 true
 false
-"" "clear-plot\nforeach [1 2 3 4 5] [\n  set-current-plot-pen word \"pen\" ?\n  plotxy (? - 1) 0\n  plotxy (? - 1) (count-liftime-reproduction (? - 1))\n  plotxy (?) (count-liftime-reproduction (? - 1))\n  plotxy ? 0\n]"
+"" "clear-plot\nforeach [1 2 3 4] [\n  set-current-plot-pen word \"pen\" ?\n  plotxy (? - 1) 0\n  plotxy (? - 1) (count-liftime-reproduction (? - 1))\n  plotxy (?) (count-liftime-reproduction (? - 1))\n  plotxy ? 0\n]"
 PENS
 "pen1" 1.0 0 -5825686 true "" ""
 "pen2" 1.0 0 -13345367 true "" ""
 "pen3" 1.0 0 -10899396 true "" ""
 "pen4" 1.0 0 -955883 true "" ""
-"pen5" 1.0 0 -6459832 true "" ""
 
 SWITCH
-4
-463
-203
-496
-show_expected_seeds?
-show_expected_seeds?
-0
+42
+410
+293
+443
+pokaz_ile_nasion?
+pokaz_ile_nasion?
+1
 1
 -1000
 
 MONITOR
-206
-458
-351
-503
-expected_seeds
+23
+453
+337
+498
+przewidywania - nasion na rosline:
 expected-seeds
 1
 1
 11
-
-TEXTBOX
-152
-352
-302
-370
-brown
-14
-35.0
-1
-
-SLIDER
-89
-368
-269
-401
-maturation_age5
-maturation_age5
-1
-5
-5
-1
-1
-NIL
-HORIZONTAL
-
-SWITCH
-103
-406
-252
-439
-semelparity5
-semelparity5
-1
-1
--1000
 
 @#$#@#$#@
 ## WHAT IS IT?

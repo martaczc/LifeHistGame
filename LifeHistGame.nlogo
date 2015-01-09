@@ -25,7 +25,7 @@ to setup
   ask patches [ ;; szachownica
     set pcolor white
   ]
-  set start_energy 1
+  set start_energy 5
   update-empty-patches
   set seeds (n-values 4 [initial_plants])
   set all_seeds (n-values 4 [0])
@@ -98,7 +98,7 @@ to plant-seeds [number breed_type] ;; TODO: choose seeds to plant if seeds > emp
         set color magenta
         set pcolor 129
         set maturation_age maturation_age1
-        set maturation_energy (count_energy maturation_age1 - 1)
+        set maturation_energy (count_energy (maturation_age1 - 1))
         ifelse semelparity1 
         [set reproduce task reproduce_once] 
         [set reproduce task reproduce_multiple]
@@ -108,7 +108,7 @@ to plant-seeds [number breed_type] ;; TODO: choose seeds to plant if seeds > emp
         set color blue
         set pcolor 99
         set maturation_age maturation_age2
-        set maturation_energy (count_energy maturation_age2 - 1)
+        set maturation_energy (count_energy (maturation_age2 - 1))
         ifelse semelparity2 
         [set reproduce task reproduce_once] 
         [set reproduce task reproduce_multiple]
@@ -118,7 +118,7 @@ to plant-seeds [number breed_type] ;; TODO: choose seeds to plant if seeds > emp
         set color green
         set pcolor 69
         set maturation_age maturation_age3
-        set maturation_energy (count_energy maturation_age3 - 1)
+        set maturation_energy (count_energy (maturation_age3 - 1))
         ifelse semelparity3 
         [set reproduce task reproduce_once] 
         [set reproduce task reproduce_multiple]
@@ -128,7 +128,7 @@ to plant-seeds [number breed_type] ;; TODO: choose seeds to plant if seeds > emp
         set color orange
         set pcolor 29
         set maturation_age maturation_age4
-        set maturation_energy (count_energy maturation_age4 - 1)
+        set maturation_energy (count_energy (maturation_age4 - 1))
         ifelse semelparity4 
         [set reproduce task reproduce_once] 
         [set reproduce task reproduce_multiple]

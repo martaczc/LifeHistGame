@@ -96,7 +96,7 @@ to plant-seeds [number breed_type] ;; TODO: choose seeds to plant if seeds > emp
         set color magenta
         set pcolor 129
         set maturation_age maturation_age1
-        set maturation_energy (count_energy maturation_age1 - 1)
+        set maturation_energy (count_energy (maturation_age1 - 1))
         ifelse semelparity1 
         [set reproduce task reproduce_once] 
         [set reproduce task reproduce_multiple]
@@ -106,7 +106,7 @@ to plant-seeds [number breed_type] ;; TODO: choose seeds to plant if seeds > emp
         set color green
         set pcolor 69
         set maturation_age maturation_age2
-        set maturation_energy (count_energy maturation_age2 - 1)
+        set maturation_energy (count_energy (maturation_age2 - 1))
         ifelse semelparity2 
         [set reproduce task reproduce_once] 
         [set reproduce task reproduce_multiple]
